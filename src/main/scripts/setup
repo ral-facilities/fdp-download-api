@@ -5,67 +5,70 @@ import re
 
 # topcat
 
+
 def uninstall():
     app = actions.getAppName("topcat")
-    if app: actions.undeploy(app)
+    if app:
+        actions.undeploy(app)
     actions.unregisterDB("topcat")
     actions.deleteMailResource("mail/topcat")
 
-actions, arg, props = getActions("topcat-setup.properties", ["db.driver", "db.url", "db.username", "db.password"], binDir=True)
+
+actions, arg, props = getActions(
+    "topcat-setup.properties", ["db.driver", "db.url", "db.username", "db.password"], binDir=True)
 
 prop_name = "topcat.properties"
 prop_list = []
 
-binDir = actions.getBinDir();
+binDir = actions.getBinDir()
 binFiles = ["topcat_admin"]
 
-if arg in ["CONFIGURE", "INSTALL"]: 
-    actions.configure(prop_name, prop_list) 
-    for f in ["topcat.json", "lang.json", "topcat.css"]:
-        actions.configureFileForWar(f)
+if arg in ["CONFIGURE", "INSTALL"]:
+    actions.configure(prop_name, prop_list)
     actions.checkNoErrors()
 
 if arg == "INSTALL":
     actions.installFile(prop_name)
-           
+
     try:
         uninstall()
 
-        actions.registerDB("topcat", props["db.driver"], props["db.url"], props["db.username"], props["db.password"])
+        actions.registerDB(
+            "topcat", props["db.driver"], props["db.url"], props["db.username"], props["db.password"])
 
         # Only create the mail resource if all mail properties are defined.
         # NOTE: if the mail resource is not created, then mail.enable MUST be false in topcat.properties
-        
-        missing = [k for k in ("mail.host","mail.user","mail.from","mail.property") if k not in props];
-        if not missing:
-            print("Creating mail resource...");
-            actions.createMailResource("mail/topcat", props["mail.host"], props["mail.user"], props["mail.from"], props["mail.property"])
-        else:
-            print "Not creating mail resource as following is/are not set:", missing;
- 
-        files = []
-        files.append(["topcat.json", "config"])
-        files.append(["lang.json", "languages"])
-        files.append(["topcat.css", "styles"])
 
-        if os.path.exists("logback.xml"): files.append(["logback.xml", "WEB-INF/classes"])
+        missing = [k for k in ("mail.host", "mail.user",
+                               "mail.from", "mail.property") if k not in props]
+        if not missing:
+            print("Creating mail resource...")
+            actions.createMailResource(
+                "mail/topcat", props["mail.host"], props["mail.user"], props["mail.from"], props["mail.property"])
+        else:
+            print "Not creating mail resource as following is/are not set:", missing
+
+        files = []
+
+        if os.path.exists("logback.xml"):
+            files.append(["logback.xml", "WEB-INF/classes"])
 
         for root, subdirs, _files in os.walk("content/"):
             to = re.sub("^content", ".", root)
             for file in _files:
                 files.append([root + "/" + file, to])
 
-        
         actions.deploy(files=files, deploymentorder=140)
 
         # If there's no binDir, don't count it as a failure
-        if os.path.isdir(binDir): 
-            for file in binFiles:   
-                if platform.system() != "Windows": os.chmod(file, 0755)    
-                actions.installFile(file , binDir)
+        if os.path.isdir(binDir):
+            for file in binFiles:
+                if platform.system() != "Windows":
+                    os.chmod(file, 0755)
+                actions.installFile(file, binDir)
         else:
             print "Not copying executables to", binDir, "as it does not exist. Create the folder and re-run if required."
-            
+
     except Exception, e:
         abort(str(e))
 
@@ -73,10 +76,10 @@ else:  # UNINSTALL
     actions.removeFile(prop_name)
 
     try:
-        uninstall();
-        if os.path.isdir(binDir): 
+        uninstall()
+        if os.path.isdir(binDir):
             for file in binFiles:
-                actions.removeFile(file, binDir) 
+                actions.removeFile(file, binDir)
 
     except Exception, e:
         abort(str(e))
