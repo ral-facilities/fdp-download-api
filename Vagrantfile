@@ -119,11 +119,6 @@ Vagrant.configure(2) do |config|
 
     rm -rf /home/vagrant/*.zip mysql-connector-java-5.1.37
 
-    sudo cp /vagrant/provision/000-default.conf /etc/apache2/sites-available
-    sudo a2enmod headers
-    sudo a2enmod rewrite
-    sudo /etc/init.d/apache2 restart
-
     
     sudo apt-get --assume-yes install maven
     mkdir /home/vagrant/.m2
