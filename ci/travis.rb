@@ -32,10 +32,6 @@ exec %{
   echo "create database topcat;" | mysql -u root --password=secret
   echo "GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost' WITH GRANT OPTION" | mysql -u root --password=secret
 
-  sudo cp provision/000-default.conf /etc/apache2/sites-available
-  sudo a2enmod headers
-  sudo a2enmod rewrite
-  sudo /etc/init.d/apache2 restart
 
   wget --quiet https://s3-eu-west-1.amazonaws.com/payara.fish/Payara+Downloads/Payara+4.1.2.181/payara-4.1.2.181.zip
   unzip payara-4.1.2.181.zip
