@@ -21,7 +21,9 @@ prop_name = "topcat.properties"
 prop_list = []
 
 binDir = actions.getBinDir()
-binFiles = ["topcat_admin"]
+# topcat_admin can't be used with the local Topcat server, as it needs topcat.json (which we have removed)
+# Add topcat_admin_LILS, which can be used (but only with the local Topcat server)
+binFiles = ["topcat_admin","topcat_admin_LILS"]
 
 if arg in ["CONFIGURE", "INSTALL"]:
     actions.configure(prop_name, prop_list)
