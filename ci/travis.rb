@@ -32,10 +32,6 @@ exec %{
   echo "create database topcat;" | mysql -u root --password=secret
   echo "GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost' WITH GRANT OPTION" | mysql -u root --password=secret
 
-  sudo cp provision/000-default.conf /etc/apache2/sites-available
-  sudo a2enmod headers
-  sudo a2enmod rewrite
-  sudo /etc/init.d/apache2 restart
 
   wget --quiet https://s3-eu-west-1.amazonaws.com/payara.fish/Payara+Downloads/Payara+4.1.2.181/payara-4.1.2.181.zip
   unzip payara-4.1.2.181.zip
@@ -116,18 +112,12 @@ exec %{
   ruby #{install_provision_dir}/populate_lucene.rb
   cd ../
 
-  npm install -g bower
-  npm install -g grunt-cli
-
   mvn clean install
   cp ./target/topcat-*.zip ./install
   cd install
   unzip -o topcat-*.zip
   cp provision/topcat.properties ./topcat
   cp provision/topcat-setup.properties ./topcat
-  cp ../yo/app/config/topcat_ci.json.example ./topcat/topcat.json
-  cp ../yo/app/languages/lang.json ./topcat
-  cp ../yo/app/styles/topcat.css ./topcat
   cd topcat
   dos2unix ./setup
   chmod 0755 ./setup
@@ -135,15 +125,5 @@ exec %{
   cd ../
 
   asadmin -t set applications.application.topcat-2.4.8-SNAPSHOT.deployment-order=140
-
-  cd ../yo
-
-  cp app/config/topcat_dev.json.example app/config/topcat_dev.json
-
-  node ./node_modules/protractor/bin/webdriver-manager update --standalone
-  
-  grunt test
-
-
 }.strip.split(/\s*\n\s*/).join(' && ')
 
