@@ -1,17 +1,15 @@
-
+from __future__ import print_function
 import requests
 import json
 import time
 import random
 
-
-
-
 from faker import Faker
 
 fake = Faker()
 
-icat_url = "http://localhost:8080"
+icat_url = "https://localhost:8181"
+verify_ssl = False
 users_count = 100
 instruments_count = 20
 investigation_types_count = 20
@@ -32,25 +30,25 @@ auth = json.dumps({
 	"plugin": "simple",
 	"credentials": [
 		{"username": "root"},
-		{"password": "root"}
+		{"password": "pw"}
 	]
 })
 
-session_id = json.loads(requests.post(icat_url + "/icat/session", {"json": auth}).text)["sessionId"]
+session_id = json.loads(requests.post(icat_url + "/icat/session", {"json": auth}, verify=verify_ssl).text)["sessionId"]
 
 def write(entities):
 	return json.loads(requests.post(icat_url + "/icat/entityManager", {
 		"icatUrl": icat_url,
 		"sessionId": session_id,
 		"entities": json.dumps(entities)
-	}).text)
+	}, verify=verify_ssl).text)
 
 def get(query):
 	return json.loads(requests.get(icat_url + "/icat/entityManager", {
 		"icatUrl": icat_url,
 		"sessionId": session_id,
 		"query": query
-	}).text)
+	}, verify=verify_ssl).text)
 
 
 facility_id = write([{
@@ -72,7 +70,7 @@ for i in range(0, users_count):
 	})
 user_ids = write(user_entities)
 
-print user_ids
+print(user_ids)
 
 instrument_entities = []
 for i in range(0, instruments_count):
@@ -103,13 +101,13 @@ dataset_types_entities = []
 for i in range(0, dataset_types_count):
 	dataset_types_entities.append({
 		"DatasetType":  {
-			"name":  "DatasetType #{i + 1}",
+			"name":  "DatasetType #" + str({i + 1}),
 			"description":  " ".join(fake.words()),
 			"facility":  {"id":  facility_id}
 		}
 	})
 dataset_type_ids = write(dataset_types_entities)
-print dataset_type_ids
+print(dataset_type_ids)
 
 
 parameter_type_entities = []
@@ -120,7 +118,7 @@ for i in range(0, parameter_type_count):
 			"valueType":  "STRING",
 			"facility":  {"id":  facility_id},
 			"units":  "foo",
-			"permissibleStringValues":  map(lambda j: {"value": str(i) + ", " + str(j)}, range(0, permissible_string_value_count)),
+			"permissibleStringValues":  list(map(lambda j: {"value": str(i) + ", " + str(j)}, range(0, permissible_string_value_count))),
 			"applicableToInvestigation":  True,
 			"applicableToDataset":  True,
 			"applicableToDatafile":  True

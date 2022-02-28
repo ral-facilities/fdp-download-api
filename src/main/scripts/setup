@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 from setup_utils import *
 import os
 import re
@@ -30,7 +31,7 @@ if arg in ["CONFIGURE", "INSTALL"]:
     actions.checkNoErrors()
 
 if arg == "INSTALL":
-    actions.installFile(prop_name)
+    actions.installFile(prop_name, binDir)
 
     try:
         uninstall()
@@ -48,7 +49,7 @@ if arg == "INSTALL":
             actions.createMailResource(
                 "mail/topcat", props["mail.host"], props["mail.user"], props["mail.from"], props["mail.property"])
         else:
-            print "Not creating mail resource as following is/are not set:", missing
+            print("Not creating mail resource as following is/are not set:", missing)
 
         files = []
 
@@ -66,12 +67,12 @@ if arg == "INSTALL":
         if os.path.isdir(binDir):
             for file in binFiles:
                 if platform.system() != "Windows":
-                    os.chmod(file, 0755)
+                    os.chmod(file, 0o0755)
                 actions.installFile(file, binDir)
         else:
-            print "Not copying executables to", binDir, "as it does not exist. Create the folder and re-run if required."
+            print("Not copying executables to", binDir, "as it does not exist. Create the folder and re-run if required.")
 
-    except Exception, e:
+    except Exception as e:
         abort(str(e))
 
 else:  # UNINSTALL
@@ -83,5 +84,5 @@ else:  # UNINSTALL
             for file in binFiles:
                 actions.removeFile(file, binDir)
 
-    except Exception, e:
+    except Exception as e:
         abort(str(e))
