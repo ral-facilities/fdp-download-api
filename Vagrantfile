@@ -119,25 +119,11 @@ Vagrant.configure(2) do |config|
 
     rm -rf /home/vagrant/*.zip mysql-connector-java-5.1.37
 
-    sudo cp /vagrant/provision/000-default.conf /etc/apache2/sites-available
-    sudo a2enmod headers
-    sudo a2enmod rewrite
-    sudo /etc/init.d/apache2 restart
-
     
-    curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
-    sudo apt-get --assume-yes install nodejs maven phantomjs
+    sudo apt-get --assume-yes install maven
     mkdir /home/vagrant/.m2
     cp /vagrant/provision/settings.xml /home/vagrant/.m2/settings.xml
     sudo update-ca-certificates -f
-    sudo npm install -g bower
-    sudo npm install -g grunt-cli
-    cd /vagrant/yo
-    bower install
-    sudo chown -R vagrant:vagrant /home/vagrant/.npm
-    sudo cp /vagrant/provision/phantomjs_bin.sh /etc/profile.d
-    sudo dos2unix /etc/profile.d/phantomjs_bin.sh
-    source /etc/profile.d/phantomjs_bin.sh
 
     curl -sSL https://get.rvm.io | bash
     source /home/vagrant/.rvm/scripts/rvm
@@ -154,7 +140,6 @@ Vagrant.configure(2) do |config|
     sudo sh -c "iptables-save > /etc/iptables/rules.v4"
     sudo sh -c "ip6tables-save > /etc/iptables/rules.v6"
 
-    cp /vagrant/yo/app/config/topcat_dev.json.example /vagrant/yo/app/config/topcat_dev.json
     sudo cp /vagrant/provision/topcat /usr/bin/topcat
     sudo chmod 755 /usr/bin/topcat
     sudo dos2unix /usr/bin/topcat
