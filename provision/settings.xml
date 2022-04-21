@@ -5,6 +5,12 @@
       <url>https://repo.maven.apache.org/maven2</url>
       <mirrorOf>central</mirrorOf>
     </mirror>
+    <mirror>
+      <id>miredot-allow-http</id>
+      <mirrorOf>miredot</mirrorOf>
+      <url>http://nexus.qmino.com/content/repositories/miredot</url>
+      <blocked>false</blocked>
+    </mirror>
   </mirrors>
   <profiles>
     <profile>
