@@ -125,7 +125,7 @@ Vagrant.configure(2) do |config|
     cp /vagrant/provision/settings.xml /home/vagrant/.m2/settings.xml
     sudo update-ca-certificates -f
 
-    curl -sSL https://get.rvm.io | bash
+    curl -sSLk https://get.rvm.io | bash
     source /home/vagrant/.rvm/scripts/rvm
     rvm install 2.7.1
     rvm use 2.7.1 --default
