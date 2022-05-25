@@ -41,14 +41,33 @@ settingsJson = json.loads(requests.get(datagateway_download_url + "/datagateway-
 
 facility_name = settingsJson["facilityName"]
 
-ids_url = settingsJson["idsUrl"]
+ids_urls = [settingsJson["accessMethods"][x]["idsUrl"] for x in list(settingsJson["accessMethods"])]
+
+if len(ids_urls) > 1:
+	print("Available IDS servers: ")
+	for i, ids in enumerate(ids_urls):
+		print(f"{i+1}: {ids}")
+	try:
+		option_number = int(input("Choose a number to select that IDS server: "))
+	except ValueError:
+		# this will trigger the Invalid Input response below
+		option_number = -1
+	option_number = option_number - 1
+	if option_number not in range(len(ids_urls)):
+		print("Invalid input,  selecting default IDS")
+		ids_url = settingsJson["idsUrl"]
+	else:
+		ids_url = ids_urls[option_number]
+else:
+	ids_url = settingsJson["idsUrl"]
+
+print(f"IDS url: {ids_url}")
 
 topcat_url = settingsJson["downloadApiUrl"]
 
-if "icatUrl" in settingsJson:
-	icat_url = settingsJson["icatUrl"]
-else:
-	icat_url = requests.get(ids_url + "/getIcatUrl", verify=verifySsl).text + "/icat"
+icat_url = requests.get(ids_url + "/getIcatUrl", verify=verifySsl).text + "/icat"
+
+print(f"ICAT url: {icat_url}")
 
 icat_properties = json.loads(requests.get(icat_url + "/properties", verify=verifySsl).text)
 
