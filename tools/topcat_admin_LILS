@@ -3,6 +3,8 @@
 # Version of topcat_admin hard-wired for LILS
 # - having removed topcat.json!
 
+from __future__ import print_function
+from builtins import input
 import requests
 import getpass
 import json
@@ -19,24 +21,24 @@ if not verifySsl:
     # requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
     # ... so just turn them all off:
     requests.packages.urllib3.disable_warnings()
-    print "WARNING: SSL certificate verification (and warnings) disabled. This script will blindly trust whatever it connects to."
+    print("WARNING: SSL certificate verification (and warnings) disabled. This script will blindly trust whatever it connects to.")
 
-topcat_url = "http://localhost:8080"
+topcat_url = "https://localhost:8181"
 
 facility_names = ["LILS"]
 
 # Might add DLS and ISIS here one day, but would need more work below - ids_url is now hard-wired for LILS.
 
 if len(facility_names) > 1:
-    print "Available facilities: "
+    print("Available facilities: ")
     for facility_name in facility_names:
         print(" * " + facility_name)
 
-    facility_name = raw_input("Which facility?: ")
+    facility_name = input("Which facility?: ")
 else:
     facility_name = facility_names[0]
 
-ids_url = "http://localhost:8080"
+ids_url = "https://localhost:8181"
 
 icat_url = requests.get(ids_url + "/ids/getIcatUrl", verify=verifySsl).text
 
@@ -49,15 +51,15 @@ for authenticator in icat_properties["authenticators"]:
     authentication_plugins.append(authenticator["mnemonic"])
 
 if len(authentication_plugins) > 1:
-    print "Available authentication plugins: "
+    print("Available authentication plugins: ")
     for authentication_plugin in authentication_plugins:
         print(" * " + authentication_plugin)
 
-    authentication_plugin = raw_input("Which authentication plugin?: ")
+    authentication_plugin = input("Which authentication plugin?: ")
 else:
     authentication_plugin = authentication_plugins[0]
 
-username = raw_input("Username: ")
+username = input("Username: ")
 password = getpass.getpass("Password: ")
 
 auth = json.dumps({
@@ -72,24 +74,24 @@ try:
     response = requests.post(icat_url + "/icat/session",
                              {"json": auth}, verify=verifySsl)
     session_id = json.loads(response.text)["sessionId"]
-except Exception, e:
+except Exception as e:
     import sys
     sys.exit("Couldn't determine sessionId: " +
              str(e) + "; response: " + response.text)
 
 
 def show_download():
-    download_id = raw_input("Enter download id: ")
-    print requests.get(topcat_url + "/topcat/admin/downloads", params={
+    download_id = input("Enter download id: ")
+    print(requests.get(topcat_url + "/topcat/admin/downloads", params={
         "facilityName": facility_name,
         "sessionId": session_id,
         "queryOffset": "where download.id = " + download_id
-    }, verify=verifySsl).text
+    }, verify=verifySsl).text)
 
 
 def list_file_locations():
-    download_id = raw_input("Enter download id: ")
-    output_file_name = raw_input("Output file name (optional): ")
+    download_id = input("Enter download id: ")
+    output_file_name = input("Output file name (optional): ")
     download = json.loads(requests.get(topcat_url + "/topcat/admin/downloads", params={
         "facilityName": facility_name,
         "sessionId": session_id,
@@ -121,11 +123,11 @@ def list_file_locations():
         file.close()
     else:
         for datafile_location in datafile_locations:
-            print datafile_location
+            print(datafile_location)
 
 
 def prepare_download():
-    download_id = raw_input("Enter download id: ")
+    download_id = input("Enter download id: ")
     investigation_ids = []
     dataset_ids = []
     datafile_ids = []
@@ -154,12 +156,12 @@ def prepare_download():
         params["datafileIds"] = ",".join(map(str, datafile_ids))
     prepared_id = requests.post(
         ids_url + "/ids/prepareData", data=params, verify=verifySsl).text
-    print ""
-    print "UPDATE DOWNLOAD set PREPARED_ID = '" + prepared_id + "', STATUS = 'RESTORING' WHERE ID = " + download_id
+    print("")
+    print("UPDATE DOWNLOAD set PREPARED_ID = '" + prepared_id + "', STATUS = 'RESTORING' WHERE ID = " + download_id)
 
 
 def expire_download():
-    download_id = raw_input("Enter download id: ")
+    download_id = input("Enter download id: ")
     requests.put(topcat_url + "/topcat/admin/download/" + download_id + "/status", data={
         "facilityName": facility_name,
         "sessionId": session_id,
@@ -170,19 +172,21 @@ def expire_download():
 def expire_all_pending_downloads():
     query = "(download.status like 'PREPARING' or download.status like 'RESTORING') and download.isDeleted = false"
 
-    facility_name = raw_input("Facility name (optional): ")
+    facility_name_input = input("Facility name (optional): ")
 
-    if facility_name != "":
-        query += " and download.facilityName = '" + facility_name + "'"
+    if facility_name_input != "":
+        query += " and download.facilityName = '" + facility_name_input + "'"
+    else:
+        facility_name_input = facility_name
 
     downloads = json.loads(requests.get(topcat_url + "/topcat/admin/downloads", params={
-        "facilityName": facility_name,
+        "facilityName": facility_name_input,
         "sessionId": session_id,
         "queryOffset": query
     }, verify=verifySsl).text)
     for download in downloads:
         requests.put(topcat_url + "/topcat/admin/download/" + str(download["id"]) + "/status", data={
-            "facilityName": facility_name,
+            "facilityName": facility_name_input,
             "sessionId": session_id,
             "value": "EXPIRED"
         }, verify=verifySsl)
@@ -200,11 +204,11 @@ def manage_download_types():
             download_status = json.loads(response.text)
             download_statuses.append(download_status)
         else:
-            print "Response for '" + str(download_type["type"]) + "' not OK: " + str(response.status_code) + ", " + response.text
-            print "Treating this download type as enabled"
+            print("Response for '" + str(download_type["type"]) + "' not OK: " + str(response.status_code) + ", " + response.text)
+            print("Treating this download type as enabled")
             download_statuses.append({"disabled": False, "message": ""})
     while True:
-        print "Current download type statuses:"
+        print("Current download type statuses:")
         for i in range(len(download_types)):
             report = download_types[i]["type"]
             if download_statuses[i]["disabled"]:
@@ -212,11 +216,11 @@ def manage_download_types():
                     download_statuses[i]["message"] + "')"
             else:
                 report += " (enabled)"
-            print str(i+1) + ": " + report
-        print
+            print(str(i+1) + ": " + report)
+        print()
         # Will a Topcat administrator ever be dumb enough to input a non-number here?
         try:
-            option_number = int(raw_input(
+            option_number = int(input(
                 "Choose a number to toggle that download type's status, or 0 to exit: "))
         except ValueError:
             # this will trigger the Invalid Input response below
@@ -225,7 +229,7 @@ def manage_download_types():
             break
         option_number = option_number - 1
         if option_number not in range(len(download_types)):
-            print "Invalid input"
+            print("Invalid input")
             # We break here rather than continue, so if correct input is impossible at least we escape
             break
         download_type = download_types[option_number]
@@ -239,17 +243,17 @@ def manage_download_types():
                 "message": download_status["message"]
             }, verify=verifySsl)
             if response:
-                print "Enabled download type " + download_type["type"]
+                print("Enabled download type " + download_type["type"])
             else:
-                print "Request failed: " + str(response.status_code) + ", " + response.text
+                print("Request failed: " + str(response.status_code) + ", " + response.text)
         else:
             if download_status["message"]:
                 old_message = download_status["message"]
-                print "Current message for the disabled download type is: " + old_message
+                print("Current message for the disabled download type is: " + old_message)
             else:
                 old_message = ""
-                print "Current message for the disabled download type is: system default"
-            message = raw_input("New message (blank = use current): ")
+                print("Current message for the disabled download type is: system default")
+            message = input("New message (blank = use current): ")
             if not len(message) > 0:
                 message = old_message
             response = requests.put(topcat_url + "/topcat/admin/downloadType/" + str(download_type["type"]) + "/status", data={
@@ -259,9 +263,9 @@ def manage_download_types():
                 "message": message
             }, verify=verifySsl)
             if response:
-                print "Disabled download type " + download_type["type"]
+                print("Disabled download type " + download_type["type"])
             else:
-                print "Request failed: " + str(response.status_code) + ", " + response.text
+                print("Request failed: " + str(response.status_code) + ", " + response.text)
         # Update the local copy of the download status
         # We ASSUME the request is OK
         download_status = json.loads(requests.get(topcat_url + "/topcat/user/downloadType/" + str(download_type["type"]) + "/status", params={
@@ -272,17 +276,17 @@ def manage_download_types():
 
 
 while True:
-    print ""
-    print "What do you want to do?"
-    print " * 1: Show download."
-    print " * 2: Get a list of all the file locations for a download."
-    print " * 3: Create preparedId for a download and generate update SQL."
-    print " * 4: Set a download status to 'EXPIRED'."
-    print " * 5: Expire all pending downloads."
-    print " * 6: Enable or disable download types."
-    print " * 7: Exit"
+    print("")
+    print("What do you want to do?")
+    print(" * 1: Show download.")
+    print(" * 2: Get a list of all the file locations for a download.")
+    print(" * 3: Create preparedId for a download and generate update SQL.")
+    print(" * 4: Set a download status to 'EXPIRED'.")
+    print(" * 5: Expire all pending downloads.")
+    print(" * 6: Enable or disable download types.")
+    print(" * 7: Exit")
 
-    option_number = raw_input("Enter option number: ")
+    option_number = input("Enter option number: ")
 
     if option_number == "1":
         show_download()
@@ -299,5 +303,5 @@ while True:
     elif option_number == "7":
         break
     else:
-        print ""
-        print "Unknown option"
+        print("")
+        print("Unknown option")
