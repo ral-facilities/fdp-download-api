@@ -24,7 +24,8 @@ prop_list = []
 binDir = actions.getBinDir()
 # topcat_admin can't be used with the local Topcat server, as it needs topcat.json (which we have removed)
 # Add topcat_admin_LILS, which can be used (but only with the local Topcat server)
-binFiles = ["topcat_admin","topcat_admin_LILS"]
+# Add datagateway_admin, which can be used with DataGateway servers
+binFiles = ["topcat_admin","topcat_admin_LILS", "datagateway_admin"]
 
 if arg in ["CONFIGURE", "INSTALL"]:
     actions.configure(prop_name, prop_list)
