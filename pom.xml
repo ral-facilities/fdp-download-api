@@ -32,8 +32,8 @@
 				<version>2.5.1</version>
 				<inherited>true</inherited>
 				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
+					<source>1.8</source>
+					<target>1.8</target>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -133,27 +133,14 @@
 		<dependency>
 			<groupId>javax</groupId>
 			<artifactId>javaee-api</artifactId>
-			<version>7.0</version>
+			<version>8.0</version>
 			<scope>provided</scope>
 		</dependency>
-		<dependency>
-			<!-- JSON-B API from JavaEE 8, which gives the @JsonbTransient annotation required for Payara 5 -->
-			<groupId>javax.json.bind</groupId>
-			<artifactId>javax.json.bind-api</artifactId>
-			<version>1.0</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-		     <groupId>javax.websocket</groupId>
-		     <artifactId>javax.websocket-api</artifactId>
-		     <version>1.1</version>
-		     <scope>provided</scope>
-		 </dependency>
 		<!-- required for the @CascadeOnDelete annotation -->
 		<dependency>
 			<groupId>org.eclipse.persistence</groupId>
 			<artifactId>org.eclipse.persistence.core</artifactId>
-			<version>2.5.0</version>
+			<version>2.7.4</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -222,7 +209,7 @@
 				<dependency>
 					<groupId>org.glassfish.main.extras</groupId>
 					<artifactId>glassfish-embedded-all</artifactId>
-					<version>4.0</version>
+					<version>5.1.0</version>
 					<scope>test</scope>
 				</dependency>
 				<!-- Enable dependency if you want to use H2 -->
