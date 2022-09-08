@@ -134,12 +134,14 @@
 			<groupId>javax</groupId>
 			<artifactId>javaee-api</artifactId>
 			<version>7.0</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<!-- JSON-B API from JavaEE 8, which gives the @JsonbTransient annotation required for Payara 5 -->
 			<groupId>javax.json.bind</groupId>
 			<artifactId>javax.json.bind-api</artifactId>
 			<version>1.0</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 		     <groupId>javax.websocket</groupId>
@@ -147,6 +149,13 @@
 		     <version>1.1</version>
 		     <scope>provided</scope>
 		 </dependency>
+		<!-- required for the @CascadeOnDelete annotation -->
+		<dependency>
+			<groupId>org.eclipse.persistence</groupId>
+			<artifactId>org.eclipse.persistence.core</artifactId>
+			<version>2.5.0</version>
+			<scope>provided</scope>
+		</dependency>
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
@@ -214,7 +223,7 @@
 					<groupId>org.glassfish.main.extras</groupId>
 					<artifactId>glassfish-embedded-all</artifactId>
 					<version>4.0</version>
-					<scope>provided</scope>
+					<scope>test</scope>
 				</dependency>
 				<!-- Enable dependency if you want to use H2 -->
 				<!-- Also update glassfish-resources.xml to use H2 connection information -->
