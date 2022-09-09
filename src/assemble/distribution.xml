@@ -44,7 +44,6 @@
 			<outputDirectory>topcat</outputDirectory>
 			<directory>${project.basedir}/tools</directory>
 			<includes>
-				<include>topcat_admin</include>
 				<include>topcat_admin_LILS</include>
 				<include>datagateway_admin</include>
 			</includes>
