@@ -132,14 +132,14 @@
 		<dependency>
 			<groupId>jakarta.platform</groupId>
 			<artifactId>jakarta.jakartaee-api</artifactId>
-			<version>9.1.0</version>
+			<version>10.0.0</version>
 			<scope>provided</scope>
 		</dependency>
 		<!-- required for the @CascadeOnDelete annotation -->
 		<dependency>
 			<groupId>org.eclipse.persistence</groupId>
 			<artifactId>org.eclipse.persistence.core</artifactId>
-			<version>3.0.2</version>
+			<version>4.0.0-M3</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -209,7 +209,7 @@
 				<dependency>
 					<groupId>org.glassfish.main.extras</groupId>
 					<artifactId>glassfish-embedded-all</artifactId>
-					<version>6.2.5</version>
+					<version>7.0.0-M4</version>
 					<scope>test</scope>
 				</dependency>
 				<dependency>
