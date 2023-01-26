@@ -43,7 +43,6 @@ public class StatusCheckTest {
             .addClasses(StatusCheck.class, DownloadRepository.class, IdsClient.class)
             .addPackages(true,"org.icatproject.topcat.domain","org.icatproject.topcat.exceptions")
             .addAsResource("META-INF/persistence.xml")
-            // .addAsResource("topcat.properties")
             .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
     }
     

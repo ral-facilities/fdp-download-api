@@ -35,11 +35,6 @@ import java.sql.*;
 public class UserResourceTest {
 
 	/*
-	 * CURRENT STATUS: I can only get this to work if I put a cobbled copy of
-	 * topcat.properties in the root folder. All attempts to use addAsResource()
-	 * have failed, and I'm fed up trying to guess (from several million online
-	 * examples) how it should be used correctly!
-	 *
 	 * Of course, these are not unit tests, but use an embedded container and a
 	 * local ICAT/IDS which we assume to be populated appropriately.
 	 */
@@ -51,7 +46,6 @@ public class UserResourceTest {
 						DownloadTypeRepository.class, CartRepository.class)
 				.addPackages(true, "org.icatproject.topcat.domain", "org.icatproject.topcat.exceptions")
 				.addAsResource("META-INF/persistence.xml")
-				// .addAsResource("topcat.properties")
 				.addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
 	}
 
