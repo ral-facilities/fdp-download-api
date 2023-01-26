@@ -8,19 +8,16 @@ import org.slf4j.LoggerFactory;
 
 
 public class Properties extends java.util.Properties {
-    
-    private static Properties instance = null;
+
+    private static Properties instance = new Properties();
 
     private Logger logger = LoggerFactory.getLogger(Properties.class);
-    
-    public synchronized static Properties getInstance() {
-       if(instance == null) {
-          instance = new Properties();
-       }
+
+    public static Properties getInstance() {
        return instance;
     }
-    
-    public Properties(){
+
+    protected Properties() {
         super();
 
         logger.debug("loading run.properties...");
