@@ -192,9 +192,9 @@ public class StatusCheck {
         valuesMap.put("size", Utils.bytesToHumanReadable(download.getSize()));
 
         StrSubstitutor sub = new StrSubstitutor(valuesMap);
-        String subject = sub.replace(properties.getProperty("mail.subject", "mail.subject not set in topcat.properties"));
+        String subject = sub.replace(properties.getProperty("mail.subject", "mail.subject not set in run.properties"));
         String bodyProperty = "mail.body." + download.getTransport();
-        String body = sub.replace(properties.getProperty(bodyProperty, bodyProperty + " not set in topcat.properties"));
+        String body = sub.replace(properties.getProperty(bodyProperty, bodyProperty + " not set in run.properties"));
 
 
         Message message = new MimeMessage(mailSession);

@@ -24,9 +24,9 @@ public class Properties extends java.util.Properties {
     public Properties(){
         super();
         try {
-            load(new FileInputStream("topcat.properties"));
+            load(new FileInputStream("run.properties"));
         } catch(IOException e){
-            logger.info("error loading topcat.properties: " + e.getMessage() + "; continuing, but expect further problems.");
+            logger.info("error loading run.properties: " + e.getMessage() + "; continuing, but expect further problems.");
         }
     }
     

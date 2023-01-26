@@ -25,7 +25,7 @@ public class FacilityMap {
 	private Map<String,String> facilityIdsUrl;
 	
 	public FacilityMap() throws InternalException{
-		// The "normal" case: use the Topcat Properties instance (that reads topcat.properties)
+		// The "normal" case: use the Topcat Properties instance (that reads run.properties)
 		this(Properties.getInstance());
 	}
 
