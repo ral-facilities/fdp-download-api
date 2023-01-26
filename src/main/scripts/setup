@@ -54,11 +54,6 @@ if arg == "INSTALL":
         if os.path.exists("logback.xml"):
             files.append(["logback.xml", "WEB-INF/classes"])
 
-        for root, subdirs, _files in os.walk("content/"):
-            to = re.sub("^content", ".", root)
-            for file in _files:
-                files.append([root + "/" + file, to])
-
         actions.deploy(files=files, deploymentorder=140)
 
         # If there's no binDir, don't count it as a failure
