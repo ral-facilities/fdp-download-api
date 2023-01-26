@@ -1,7 +1,6 @@
-
 package org.icatproject.topcat;
 
-import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.IOException;
 
 import org.slf4j.Logger;
@@ -23,11 +22,22 @@ public class Properties extends java.util.Properties {
     
     public Properties(){
         super();
-        try {
-            load(new FileInputStream("run.properties"));
+
+        logger.debug("loading run.properties...");
+
+        try (InputStream istream = this.getClass().getClassLoader().getResourceAsStream("run.properties")) {
+
+            if (istream == null) {
+                throw new RuntimeException("Could not find run.properties");
+            }
+
+            this.load(istream);
+
+            istream.close();
         } catch(IOException e){
-            logger.info("error loading run.properties: " + e.getMessage() + "; continuing, but expect further problems.");
+            throw new RuntimeException("Error reading from run.properties", e);
         }
+
+        logger.debug("run.properties loaded");
     }
-    
 }
