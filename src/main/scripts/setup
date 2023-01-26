@@ -31,8 +31,6 @@ if arg in ["CONFIGURE", "INSTALL"]:
     actions.checkNoErrors()
 
 if arg == "INSTALL":
-    actions.installFile(prop_name, binDir)
-
     try:
         uninstall()
 
@@ -49,12 +47,12 @@ if arg == "INSTALL":
         else:
             print("Not creating mail resource as following is/are not set:", missing)
 
-        files = []
+        files = [[prop_name, "WEB-INF/classes"]]
 
         if os.path.exists("logback.xml"):
             files.append(["logback.xml", "WEB-INF/classes"])
 
-        actions.deploy(files=files, deploymentorder=140)
+        actions.deploy(files=files, deploymentorder=140, target=props.get("db.target"), logging=props.get("db.logging"))
 
         # If there's no binDir, don't count it as a failure
         if os.path.isdir(binDir):
@@ -68,9 +66,8 @@ if arg == "INSTALL":
     except Exception as e:
         abort(str(e))
 
-else:  # UNINSTALL
-    actions.removeFile(prop_name)
 
+if arg == "UNINSTALL":
     try:
         uninstall()
         if os.path.isdir(binDir):

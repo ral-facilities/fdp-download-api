@@ -20,6 +20,7 @@
 			<outputDirectory>topcat</outputDirectory>
 			<directory>${project.basedir}/src/main/scripts</directory>
 			<lineEnding>unix</lineEnding>
+			<fileMode>0755</fileMode>
 		</fileSet>
 
 		<fileSet>
