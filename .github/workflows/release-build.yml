@@ -36,7 +36,7 @@ jobs:
       - name: Build
         run: |
           mvn clean install -DskipTests
-          cp target/topcat-$VERSION-distro.zip .
+          cp target/datagateway-download-api-$VERSION-distro.zip .
 
       - name: Determine tag name
         run: |
@@ -67,7 +67,7 @@ jobs:
         uses: johnwbyrd/update-release@v1.0.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          files: ./topcat-${{ env.VERSION }}-distro.zip
+          files: ./datagateway-download-api-${{ env.VERSION }}-distro.zip
           release: Release ${{ env.TAG_NAME }}
           tag: ${{ env.TAG_NAME }}
           prerelease: ${{ github.ref == 'refs/heads/master' }}

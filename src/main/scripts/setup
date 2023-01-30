@@ -11,6 +11,11 @@ def uninstall():
     app = actions.getAppName("topcat")
     if app:
         actions.undeploy(app)
+
+    app = actions.getAppName("datagateway-download-api")
+    if app:
+        actions.undeploy(app)
+
     actions.unregisterDB("topcat")
     actions.deleteMailResource("mail/topcat")
 
