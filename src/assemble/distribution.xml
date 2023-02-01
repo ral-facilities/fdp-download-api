@@ -11,20 +11,20 @@
 	<fileSets>
 
 		<fileSet>
-			<outputDirectory>topcat</outputDirectory>
+			<outputDirectory>datagateway-download-api</outputDirectory>
 			<directory>${project.basedir}/src/main/config</directory>
 			<lineEnding>unix</lineEnding>
 		</fileSet>
 
 		<fileSet>
-			<outputDirectory>topcat</outputDirectory>
+			<outputDirectory>datagateway-download-api</outputDirectory>
 			<directory>${project.basedir}/src/main/scripts</directory>
 			<lineEnding>unix</lineEnding>
 			<fileMode>0755</fileMode>
 		</fileSet>
 
 		<fileSet>
-			<outputDirectory>topcat</outputDirectory>
+			<outputDirectory>datagateway-download-api</outputDirectory>
 			<directory>${project.basedir}/target</directory>
 			<includes>
 				<include>*.war</include>
@@ -32,7 +32,7 @@
 		</fileSet>
 
 		<fileSet>
-			<outputDirectory>topcat</outputDirectory>
+			<outputDirectory>datagateway-download-api</outputDirectory>
 			<directory>${project.basedir}/tools</directory>
 			<includes>
 				<include>topcat_admin_LILS</include>
@@ -41,7 +41,7 @@
 		</fileSet>
 
 		<fileSet>
-			<outputDirectory>topcat/migrations</outputDirectory>
+			<outputDirectory>datagateway-download-api/migrations</outputDirectory>
 			<directory>${project.basedir}/migrations</directory>
 			<lineEnding>unix</lineEnding>
 		</fileSet>
@@ -52,7 +52,7 @@
 	<dependencySets>
 
 		<dependencySet>
-			<outputDirectory>topcat</outputDirectory>
+			<outputDirectory>datagateway-download-api</outputDirectory>
 			<useTransitiveDependencies>false</useTransitiveDependencies>
 			<unpack>true</unpack>
 			<unpackOptions>
