@@ -376,7 +376,7 @@ public class AdminResourceTest {
 	private Download findDownload(List<Download> downloads, Long downloadId) {
 
 		for (Download download : downloads) {
-			if (download.getId() == downloadId)
+			if (download.getId().equals(downloadId))
 				return download;
 		}
 		return null;
