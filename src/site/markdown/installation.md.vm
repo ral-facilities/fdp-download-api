@@ -3,21 +3,21 @@
 #set($h3 = '###')
 #set($h4 = '####')
 
-$h1 TopCAT Installation Guide
+$h1 DataGaway Download API Installation Guide
 
 $h2 Compatibility
 
-TopCAT requires Java 8+, icat.server 4.6+ and ids.server 1.5.0.+
+DGW Download API requires Java 11+, icat.server 4.6+ and ids.server 1.5.0.+
 
 TopCAT 2.4.3 reflects schema changes added in icat.server 4.10. If your configuration requires any of these
 schema changes then you should install 2.4.3 or later.
 
 $h2 Prerequisites
 
-  - The TopCAT distribution: [topcat-${project.version}-distro.zip](${repoUrl}/org/icatproject/topcat/${project.version}/topcat-${project.version}-distro.zip)
-  - A suitable deployed container (here assumed to be glassfish) to support a web application. Testing has been carried out with Glassfish 4.0. [Glassfish installation instructions](http://icatproject.org/installation/glassfish/) are available.
-  -  A database as described in [Database installation instructions](http://icatproject.org/installation/database/) installed on the server.
-  - Python (version 2.4 to 2.7) installed on the server.
+  - The DGW Download API distribution: [datagateway-download-api-${project.version}-distro.zip](${repoUrl}/org/icatproject/datagateway-download-api/${project.version}/datagateway-download-api-${project.version}-distro.zip)
+  - A suitable deployed application server that supports JakartaEE 10+. Testing has been carried out with Payara Server Community 6. Other applications servers such as GlassFish and WildFly may work but have not been tested. [Glassfish (payara) installation instructions](http://icatproject.org/installation/glassfish/) are available.
+  - A database as described in [Database installation instructions](http://icatproject.org/installation/database/) installed on the server.
+  - Python 3.6+ installed on the server.
 
 $h2 Summary of Steps
 
