@@ -181,7 +181,7 @@ for i in range(0, proposals_count):
 						"name":  "Datafile " + str(l + 1),
 						"description":  " ".join(fake.words()),
 						"location":  "/".join(fake.words()),
-						"fileSize":  0,
+						"fileSize":  random.randrange(1000000),
 						"dataset":  {"id":  dataset_id}
 					}
 				})
