@@ -29,7 +29,7 @@ import org.icatproject.topcat.exceptions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.commons.lang3.text.StrSubstitutor;
+import org.apache.commons.text.StringSubstitutor;
 import org.apache.commons.validator.routines.EmailValidator;
 
 import jakarta.mail.Message;
@@ -191,7 +191,7 @@ public class StatusCheck {
         valuesMap.put("fileName", download.getFileName());
         valuesMap.put("size", Utils.bytesToHumanReadable(download.getSize()));
 
-        StrSubstitutor sub = new StrSubstitutor(valuesMap);
+        StringSubstitutor sub = new StringSubstitutor(valuesMap);
         String subject = sub.replace(properties.getProperty("mail.subject", "mail.subject not set in run.properties"));
         String bodyProperty = "mail.body." + download.getTransport();
         String body = sub.replace(properties.getProperty(bodyProperty, bodyProperty + " not set in run.properties"));
