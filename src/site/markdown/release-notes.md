@@ -1,6 +1,16 @@
 # Release Notes
 
-## 2.4.9 (14 June 2022)
+## 3.0.1 (3rd July 2023)
+
+  * Update logback-classic to 2.1.12
+  * Update commons-validator to 1.7
+  * Replace commons-lang3 with commons-text
+
+## 3.0.0 (27th June 2023)
+
+  * Upgrade from JavaEE to JakartaEE 10. Requires Java 11+ and an application server that supports JakartaEE 10 such as Payara 6.
+
+## 2.4.9 (14th June 2022)
 
   * Add ability to remove items from cart via a POST request to /cartItems (PR #483)
 

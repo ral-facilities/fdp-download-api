@@ -8,13 +8,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.ejb.EJB;
-import javax.ejb.Schedule;
-import javax.ejb.Singleton;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
-import javax.annotation.Resource;
+import jakarta.ejb.EJB;
+import jakarta.ejb.Schedule;
+import jakarta.ejb.Singleton;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
+import jakarta.annotation.Resource;
 
 import org.icatproject.topcat.domain.Download;
 import org.icatproject.topcat.domain.DownloadStatus;
@@ -29,16 +29,16 @@ import org.icatproject.topcat.exceptions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.commons.lang3.text.StrSubstitutor;
+import org.apache.commons.text.StringSubstitutor;
 import org.apache.commons.validator.routines.EmailValidator;
 
-import javax.mail.Message;
-import javax.mail.Message.RecipientType;
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
+import jakarta.mail.Message;
+import jakarta.mail.Message.RecipientType;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Session;
+import jakarta.mail.Transport;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
 
 
 @Singleton
@@ -191,7 +191,7 @@ public class StatusCheck {
         valuesMap.put("fileName", download.getFileName());
         valuesMap.put("size", Utils.bytesToHumanReadable(download.getSize()));
 
-        StrSubstitutor sub = new StrSubstitutor(valuesMap);
+        StringSubstitutor sub = new StringSubstitutor(valuesMap);
         String subject = sub.replace(properties.getProperty("mail.subject", "mail.subject not set in run.properties"));
         String bodyProperty = "mail.body." + download.getTransport();
         String body = sub.replace(properties.getProperty(bodyProperty, bodyProperty + " not set in run.properties"));
