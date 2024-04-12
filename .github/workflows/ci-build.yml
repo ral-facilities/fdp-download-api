@@ -91,3 +91,11 @@ jobs:
       - name: Run Unit Tests
         run: mvn test -B
 
+      - name: After Failure
+        if: ${{ failure() }}
+        run: |
+          cat /home/runner/logs/datagateway-download-api.log
+          cat /home/runner/logs/ids.log
+          cat /home/runner/logs/icat.log
+          cat /home/runner/payara*/glassfish/domains/domain1/logs/server.log
+
