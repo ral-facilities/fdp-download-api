@@ -250,7 +250,7 @@
 							</excludes>
 							<!-- TODO remove next line -->
 							<!-- <skipTests>true</skipTests> -->
-							<argLine>-Xmx768m -XX:MaxPermSize=256m</argLine>
+							<argLine>-Xmx768m -XX:MaxMetaspaceSize=256m</argLine>
 							<systemPropertyVariables>
 								<java.util.logging.config.file>
 									${project.build.testOutputDirectory}/logging.properties
