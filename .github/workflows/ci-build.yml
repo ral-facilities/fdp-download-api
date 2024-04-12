@@ -71,7 +71,7 @@ jobs:
       # Create local instance of ICAT
       - name: Run ICAT Ansible Playbook
         run: |
-          ansible-playbook icat-ansible/icat_server_dev_hosts.yml -i icat-ansible/hosts --vault-password-file icat-ansible/vault_pass.txt -vv
+          ansible-playbook icat-ansible/icat_test_hosts.yml -i icat-ansible/hosts --vault-password-file icat-ansible/vault_pass.txt -vv
 
       - name: Checkout
         uses: actions/checkout@cd7d8d697e10461458bc61a30d094dc601a8b017 # v4.0.0
@@ -91,11 +91,31 @@ jobs:
       - name: Run Unit Tests
         run: mvn test -B
 
-      - name: After Failure
+      # Upload logs on failure
+      - name: Upload DataGatewayDownload API log
+        uses: actions/upload-artifact@v4
         if: ${{ failure() }}
-        run: |
-          cat /home/runner/logs/datagateway-download-api.log
-          cat /home/runner/logs/ids.log
-          cat /home/runner/logs/icat.log
-          cat /home/runner/payara*/glassfish/domains/domain1/logs/server.log
+        with:
+          name: DataGatewayDownload API logs
+          path: /home/runner/logs/datagateway-download-api.log
 
+      - name: Upload IDS log
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() }}
+        with:
+          name: IDS logs
+          path: /home/runner/logs/ids.log
+
+      - name: Upload ICAT log
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() }}
+        with:
+          name: ICAT logs
+          path: /home/runner/logs/icat.log
+
+      - name: Payara logs
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() }}
+        with:
+          name: Payara logs
+          path: /home/runner/payara*/glassfish/domains/domain1/logs/server.log
