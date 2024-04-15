@@ -11,7 +11,11 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        java_version: [11, 17]
+        java_version:
+          - 11
+          # Errors with `java.lang.IllegalArgumentException: ArquillianServletRunnerEE9 not found. Could not determine ContextRoot from ProtocolMetadata, please contact DeployableContainer developer.`
+          # Bumping various Arquillian dependencies does not fix, leave as just Java 11
+          # - 17  
 
     steps:
       - name: Setup Java
