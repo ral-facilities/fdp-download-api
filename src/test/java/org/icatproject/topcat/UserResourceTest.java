@@ -77,11 +77,11 @@ public class UserResourceTest {
 	public void setup() throws Exception {
 		HttpClient httpClient = new HttpClient("https://localhost:8181/icat");
 		String data = "json=" + URLEncoder.encode(
-				"{\"plugin\":\"simple\", \"credentials\":[{\"username\":\"root\"}, {\"password\":\"root\"}]}", "UTF8");
+				"{\"plugin\":\"simple\", \"credentials\":[{\"username\":\"root\"}, {\"password\":\"pw\"}]}", "UTF8");
 		String response = httpClient.post("session", new HashMap<String, String>(), data).toString();
 		sessionId = Utils.parseJsonObject(response).getString("sessionId");
 
-		connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/icat", "root", "secret");
+		connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/icatdb", "icatdbuser", "icatdbuserpw");
 	}
 
 	@Test

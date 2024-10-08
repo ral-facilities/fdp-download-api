@@ -82,14 +82,14 @@ public class AdminResourceTest {
 		// Log in as an admin user
 
 		String data = "json=" + URLEncoder.encode(
-				"{\"plugin\":\"simple\", \"credentials\":[{\"username\":\"root\"}, {\"password\":\"root\"}]}", "UTF8");
+				"{\"plugin\":\"simple\", \"credentials\":[{\"username\":\"root\"}, {\"password\":\"pw\"}]}", "UTF8");
 		String response = httpClient.post("session", new HashMap<String, String>(), data).toString();
 		adminSessionId = Utils.parseJsonObject(response).getString("sessionId");
 
 		// Also log in as a non-admin user
 
 		data = "json=" + URLEncoder.encode(
-				"{\"plugin\":\"simple\", \"credentials\":[{\"username\":\"nonroot\"}, {\"password\":\"nonroot\"}]}",
+				"{\"plugin\":\"simple\", \"credentials\":[{\"username\":\"icatuser\"}, {\"password\":\"icatuserpw\"}]}",
 				"UTF8");
 		response = httpClient.post("session", new HashMap<String, String>(), data).toString();
 		nonAdminSessionId = Utils.parseJsonObject(response).getString("sessionId");

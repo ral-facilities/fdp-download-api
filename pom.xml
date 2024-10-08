@@ -28,6 +28,11 @@
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>3.4.0</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.10.1</version>
 				<inherited>true</inherited>
@@ -245,7 +250,7 @@
 							</excludes>
 							<!-- TODO remove next line -->
 							<!-- <skipTests>true</skipTests> -->
-							<argLine>-Xmx768m -XX:MaxPermSize=256m</argLine>
+							<argLine>-Xmx768m -XX:MaxMetaspaceSize=256m</argLine>
 							<systemPropertyVariables>
 								<java.util.logging.config.file>
 									${project.build.testOutputDirectory}/logging.properties
