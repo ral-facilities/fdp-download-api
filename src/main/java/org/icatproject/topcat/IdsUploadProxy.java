@@ -82,7 +82,7 @@ public class IdsUploadProxy {
             String idsUrl = "";
             if( facilityName != null ){
             	try {
-            		idsUrl = FacilityMap.getInstance().getIdsUrl(facilityName);
+            		idsUrl = FacilityMap.getInstance().getStorageUrl(facilityName);
             	} catch (InternalException ie){
             		logger.debug("IdsUploadProxy.Upload: error getting idsUrl for facility '" + facilityName + "': " + ie.getMessage());
             		throw ie;

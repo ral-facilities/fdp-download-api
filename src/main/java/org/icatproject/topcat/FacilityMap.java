@@ -3,6 +3,7 @@ package org.icatproject.topcat;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.icatproject.topcat.domain.StorageType;
 import org.icatproject.topcat.exceptions.InternalException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +23,8 @@ public class FacilityMap {
 	
 	private Properties properties;
 	private Map<String,String> facilityIcatUrl;
-	private Map<String,String> facilityIdsUrl;
+	private Map<String,String> facilityStorageUrl;
+	private Map<String,StorageType> facilityStorageType;
 	
 	public FacilityMap() throws InternalException{
 		// The "normal" case: use the Topcat Properties instance (that reads run.properties)
@@ -34,7 +36,8 @@ public class FacilityMap {
 		// This allows us to inject a mock Properties instance for testing
 		
 		facilityIcatUrl = new HashMap<String,String>();
-		facilityIdsUrl = new HashMap<String,String>();
+		facilityStorageUrl = new HashMap<String,String>();
+		facilityStorageType = new HashMap<String,StorageType>();
 		
 		properties = injectedProperties;
 		
@@ -50,6 +53,7 @@ public class FacilityMap {
 		
 		for( String facility : facilities ){
 			logger.info("FacilityMap: looking for properties for facility '" + facility + "'...");
+
 			String icatUrl = properties.getProperty("facility." + facility + ".icatUrl","");
 			// Complain/log if property is not set
 			if( icatUrl.length() == 0 ){
@@ -59,15 +63,29 @@ public class FacilityMap {
 			}
 			logger.info("FacilityMap: icatUrl for facility '" + facility + "' is '" + icatUrl + "'");
 			facilityIcatUrl.put( facility,  icatUrl );
-			String idsUrl = properties.getProperty("facility." + facility + ".idsUrl","");
+
+			String idsUrl = properties.getProperty("facility." + facility + ".idsUrl", "");
+			String ftsUrl = properties.getProperty("facility." + facility + ".ftsUrl", "");
 			// Complain/log if property is not set
-			if( idsUrl.length() == 0 ){
-				String error = "FacilityMap: property facility." + facility + ".idsUrl is not defined.";
-				logger.error( error );
-				throw new InternalException( error );
+			if (ftsUrl.length() != 0 && idsUrl.length() != 0) {
+				String error = "FacilityMap: both properties facility." + facility + ".idsUrl and facility." + facility
+						+ ".ftsUrl are defined.";
+				logger.error(error);
+				throw new InternalException(error);
+			} else if (idsUrl.length() != 0) {
+				logger.info("FacilityMap: idsUrl for facility '" + facility + "' is '" + idsUrl + "'");
+				facilityStorageType.put(facility, StorageType.ids);
+				facilityStorageUrl.put(facility, idsUrl);
+			} else if (ftsUrl.length() != 0) {
+				logger.info("FacilityMap: ftsUrl for facility '" + facility + "' is '" + ftsUrl + "'");
+				facilityStorageType.put(facility, StorageType.fts);
+				facilityStorageUrl.put(facility, ftsUrl);
+			} else {
+				String error = "FacilityMap: neither property facility." + facility + ".idsUrl nor facility." + facility
+						+ ".ftsUrl is defined.";
+				logger.error(error);
+				throw new InternalException(error);
 			}
-			logger.info("FacilityMap: idsUrl for facility '" + facility + "' is '" + idsUrl + "'");
-			facilityIdsUrl.put( facility,  idsUrl );
 		}
 	}
 	
@@ -81,10 +99,14 @@ public class FacilityMap {
 		return url;
 	}
 
-	public String getIdsUrl( String facility ) throws InternalException{
-		String url = facilityIdsUrl.get( facility );
+	public StorageType getStorageType(String facility) {
+		return facilityStorageType.get(facility);
+	}
+
+	public String getStorageUrl( String facility ) throws InternalException{
+		String url = facilityStorageUrl.get( facility );
 		if( url == null ){
-			String error = "FacilityMap.getIdsUrl: unknown facility: " + facility;
+			String error = "FacilityMap.getStorageUrl: unknown facility: " + facility;
 			logger.error( error );
 			throw new InternalException( error );
 		}
@@ -99,7 +121,7 @@ public class FacilityMap {
 			// No such property, so fall back to the facility idsUrl
 			logger.info("FacilityMap.getDownloadUrl: no specific property for facility '" 
 					+ facility + "' and download type '" + downloadType + "'; returning idsUrl instead" );
-			url = this.getIdsUrl(facility);
+			url = this.getStorageUrl(facility);
 		}
 		return url;
 	}

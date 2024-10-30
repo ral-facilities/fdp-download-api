@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import org.icatproject.topcat.repository.CacheRepository;
 
-public class IdsClient {
+public class IdsClient extends StorageClient{
 
     private Logger logger = LoggerFactory.getLogger(IdsClient.class);
 

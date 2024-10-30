@@ -21,6 +21,7 @@ import org.icatproject.topcat.domain.DownloadStatus;
 import org.icatproject.topcat.Properties;
 import org.icatproject.topcat.Utils;
 import org.icatproject.topcat.repository.*;
+import org.icatproject.topcat.web.rest.UserResource;
 import org.icatproject.topcat.IdsClient;
 import org.icatproject.topcat.FacilityMap;
 
@@ -90,10 +91,10 @@ public class StatusCheck {
    * 
    * @param pollDelay minimum time to wait before initial preparation/check
    * @param pollIntervalWait minimum time between checks
-   * @param injectedIdsClient optional (possibly mock) IdsClient
+   * @param injectedStorageClient optional (possibly mock) StorageClient
    * @throws Exception
    */
-  public void updateStatuses(int pollDelay, int pollIntervalWait, IdsClient injectedIdsClient) throws Exception {
+  public void updateStatuses(int pollDelay, int pollIntervalWait, StorageClient injectedStorageClient) throws Exception {
 	  
 	  // This method is intended for testing, but we are forced to make it public rather than protected.
 
@@ -108,31 +109,31 @@ public class StatusCheck {
         	// If prepareDownload was called previously but caught an exception (other than TopcatException),
         	// we should not call it again immediately, but should impose a delay. See issue #462.          
           if(lastCheck == null){
-        	  prepareDownload(download, injectedIdsClient);
+        	  prepareDownload(download, injectedStorageClient);
             } else {
               long lastCheckSecondsAgo = (now.getTime() - lastCheck.getTime()) / 1000;
               if(lastCheckSecondsAgo >= pollIntervalWait){
-            	  prepareDownload(download, injectedIdsClient);
+            	  prepareDownload(download, injectedStorageClient);
               }
             }
         } else if(createdSecondsAgo >= pollDelay){
           if(lastCheck == null){
-            performCheck(download, injectedIdsClient);
+            performCheck(download, injectedStorageClient);
           } else {
             long lastCheckSecondsAgo = (now.getTime() - lastCheck.getTime()) / 1000;
             if(lastCheckSecondsAgo >= pollIntervalWait){
-              performCheck(download, injectedIdsClient);
+              performCheck(download, injectedStorageClient);
             }
           }
         }
       }	  
   }
 
-  private void performCheck(Download download, IdsClient injectedIdsClient) {
+  private void performCheck(Download download, StorageClient injectedStorageClient) {
     try {
-      IdsClient idsClient = injectedIdsClient;
-      if( idsClient == null ) {
-    	  idsClient = new IdsClient(getDownloadUrl(download.getFacilityName(),download.getTransport()));
+      StorageClient storageClient = injectedStorageClient;
+      if( storageClient == null ) {
+    	  storageClient = UserResource.getDownloadClient(download.getFacilityName(), download.getTransport());
       }
       if(!download.getIsEmailSent() && download.getStatus() == DownloadStatus.COMPLETE){
     	  logger.info("Download COMPLETE for " + download.getFileName() + "; checking whether to send email...");
@@ -141,7 +142,7 @@ public class StatusCheck {
         em.flush();
         lastChecks.remove(download.getId());
         sendDownloadReadyEmail(download);
-      } else if(download.getTransport().matches("https|http") && idsClient.isPrepared(download.getPreparedId())){
+      } else if(download.getTransport().matches("https|http") && storageClient.isPrepared(download.getPreparedId())){
     	  logger.info("Download (http[s]) for " + download.getFileName() + " is Prepared, so setting COMPLETE and checking email...");
         download.setStatus(DownloadStatus.COMPLETE);
         download.setCompletedAt(new Date());
@@ -218,19 +219,20 @@ public class StatusCheck {
     }
   }
 
-  private void prepareDownload(Download download, IdsClient injectedIdsClient) throws Exception {
+  private void prepareDownload(Download download, StorageClient injectedStorageClient) throws Exception {
 
     try {
-      IdsClient idsClient = injectedIdsClient;
-      if( idsClient == null ) {
-    	  idsClient = new IdsClient(getDownloadUrl(download.getFacilityName(),download.getTransport()));
+      StorageClient storageClient = injectedStorageClient;
+      if( storageClient == null ) {
+    	  storageClient = UserResource.getDownloadClient(download.getFacilityName(), download.getTransport());
       }
       logger.info("Requesting prepareData for Download " + download.getFileName());
-      String preparedId = idsClient.prepareData(download.getSessionId(), download.getInvestigationIds(), download.getDatasetIds(), download.getDatafileIds());
+      String preparedId = storageClient.prepareData(download.getSessionId(), download.getInvestigationIds(), download.getDatasetIds(), download.getDatafileIds());
       download.setPreparedId(preparedId);
 
       try {
-        Long size = idsClient.getSize(download.getSessionId(), download.getInvestigationIds(), download.getDatasetIds(), download.getDatafileIds());
+        // TODO if we don't accept size in the request, make this hit ICAT directly rather than via the IDS so I don't have to duplicate?
+        Long size = storageClient.getSize(download.getSessionId(), download.getInvestigationIds(), download.getDatasetIds(), download.getDatafileIds());
         download.setSize(size);
       } catch(Exception e) {
     	logger.error("prepareDownload: setting size to -1 as getSize threw exception: " + e.getMessage());
