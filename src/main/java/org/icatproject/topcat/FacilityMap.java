@@ -22,7 +22,7 @@ public class FacilityMap {
 	
 	private Properties properties;
 	private Map<String,String> facilityIcatUrl;
-	private Map<String,String> facilityIdsUrl;
+	private Map<String,String> facilityTransferUrl;
 	
 	public FacilityMap() throws InternalException{
 		// The "normal" case: use the Topcat Properties instance (that reads run.properties)
@@ -34,7 +34,7 @@ public class FacilityMap {
 		// This allows us to inject a mock Properties instance for testing
 		
 		facilityIcatUrl = new HashMap<String,String>();
-		facilityIdsUrl = new HashMap<String,String>();
+		facilityTransferUrl = new HashMap<String,String>();
 		
 		properties = injectedProperties;
 		
@@ -59,15 +59,15 @@ public class FacilityMap {
 			}
 			logger.info("FacilityMap: icatUrl for facility '" + facility + "' is '" + icatUrl + "'");
 			facilityIcatUrl.put( facility,  icatUrl );
-			String idsUrl = properties.getProperty("facility." + facility + ".idsUrl","");
+			String transferUrl = properties.getProperty("facility." + facility + ".transferUrl","");
 			// Complain/log if property is not set
-			if( idsUrl.length() == 0 ){
-				String error = "FacilityMap: property facility." + facility + ".idsUrl is not defined.";
+			if( transferUrl.length() == 0 ){
+				String error = "FacilityMap: property facility." + facility + ".transferUrl is not defined.";
 				logger.error( error );
 				throw new InternalException( error );
 			}
-			logger.info("FacilityMap: idsUrl for facility '" + facility + "' is '" + idsUrl + "'");
-			facilityIdsUrl.put( facility,  idsUrl );
+			logger.info("FacilityMap: transferUrl for facility '" + facility + "' is '" + transferUrl + "'");
+			facilityTransferUrl.put( facility,  transferUrl );
 		}
 	}
 	
@@ -81,10 +81,10 @@ public class FacilityMap {
 		return url;
 	}
 
-	public String getIdsUrl( String facility ) throws InternalException{
-		String url = facilityIdsUrl.get( facility );
+	public String getTransferUrl( String facility ) throws InternalException{
+		String url = facilityTransferUrl.get( facility );
 		if( url == null ){
-			String error = "FacilityMap.getIdsUrl: unknown facility: " + facility;
+			String error = "FacilityMap.getTransferUrl: unknown facility: " + facility;
 			logger.error( error );
 			throw new InternalException( error );
 		}
@@ -96,10 +96,10 @@ public class FacilityMap {
 		// First, look for the property directly
 		url = properties.getProperty( "facility." + facility + ".downloadType." + downloadType, "" );
 		if( url.length() == 0 ){
-			// No such property, so fall back to the facility idsUrl
+			// No such property, so fall back to the facility transferUrl
 			logger.info("FacilityMap.getDownloadUrl: no specific property for facility '" 
-					+ facility + "' and download type '" + downloadType + "'; returning idsUrl instead" );
-			url = this.getIdsUrl(facility);
+					+ facility + "' and download type '" + downloadType + "'; returning transferUrl instead" );
+			url = this.getTransferUrl(facility);
 		}
 		return url;
 	}

@@ -1,7 +1,8 @@
 name: Release Build
 on:
   push:
-    branches: master
+    branches: 
+      - main
     tags: '*'
 
 jobs:
@@ -36,24 +37,24 @@ jobs:
       - name: Build
         run: |
           mvn clean install -DskipTests
-          cp target/datagateway-download-api-$VERSION-distro.zip .
+          cp target/fdp-download-api-$VERSION-distro.zip .
 
       - name: Determine tag name
         run: |
-          if [ "${{ github.ref }}" = "refs/heads/master" ]
+          if [ "${{ github.ref }}" = "refs/heads/main" ]
           then
             echo TAG_NAME=$VERSION >> $GITHUB_ENV
           else
             echo TAG_NAME=`basename ${{ github.ref }}` >> $GITHUB_ENV
           fi
 
-      - name: Check that version ends with -SNAPSHOT (if on master)
+      - name: Check that version ends with -SNAPSHOT (if on main)
         uses: nick-invision/assert-action@v1
         with:
           expected: '-SNAPSHOT'
           actual: ${{ env.TAG_NAME }}
           comparison: endsWith
-        if: ${{ github.ref == 'refs/heads/master' }}
+        if: ${{ github.ref == 'refs/heads/main' }}
 
       - name: Update SNAPSHOT tag
         uses: richardsimko/update-tag@v1
@@ -61,14 +62,14 @@ jobs:
           tag_name: ${{ env.TAG_NAME }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        if: ${{ github.ref == 'refs/heads/master' }}
+        if: ${{ github.ref == 'refs/heads/main' }}
 
       - name: Create/update release
         uses: johnwbyrd/update-release@v1.0.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          files: ./datagateway-download-api-${{ env.VERSION }}-distro.zip
+          files: ./fdp-download-api-${{ env.VERSION }}-distro.zip
           release: Release ${{ env.TAG_NAME }}
           tag: ${{ env.TAG_NAME }}
-          prerelease: ${{ github.ref == 'refs/heads/master' }}
+          prerelease: ${{ github.ref == 'refs/heads/main' }}
           draft: false

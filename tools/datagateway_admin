@@ -41,7 +41,7 @@ settingsJson = json.loads(requests.get(datagateway_download_url + "/datagateway-
 
 facility_name = settingsJson["facilityName"]
 
-ids_urls = [settingsJson["accessMethods"][x]["idsUrl"] for x in list(settingsJson["accessMethods"])]
+ids_urls = [settingsJson["accessMethods"][x]["transferUrl"] for x in list(settingsJson["accessMethods"])]
 
 if len(ids_urls) > 1:
 	print("Available IDS servers: ")
@@ -55,11 +55,11 @@ if len(ids_urls) > 1:
 	option_number = option_number - 1
 	if option_number not in range(len(ids_urls)):
 		print("Invalid input,  selecting default IDS")
-		ids_url = settingsJson["idsUrl"]
+		ids_url = settingsJson["transferUrl"]
 	else:
 		ids_url = ids_urls[option_number]
 else:
-	ids_url = settingsJson["idsUrl"]
+	ids_url = settingsJson["transferUrl"]
 
 print("IDS url: " + ids_url)
 

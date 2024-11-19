@@ -4,7 +4,7 @@ on:
   pull_request:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   build_and_tests:
@@ -46,7 +46,6 @@ jobs:
         with:
           repository: icatproject-contrib/icat-ansible
           path: icat-ansible
-          ref: payara6
       - name: Install Ansible
         run: pip install -r icat-ansible/requirements.txt
 
@@ -60,9 +59,6 @@ jobs:
       - name: Replace default payara user with Actions user
         run: |
           sed -i -e "s/^payara_user: \"glassfish\"/payara_user: \"runner\"/" icat-ansible/group_vars/all/vars.yml
-      - name: Set ids.server version
-        run: |
-          echo "ids_server_version: 2.1.0" >> icat-ansible/group_vars/all/vars.yml
 
       # Force hostname to localhost - bug fix for previous ICAT Ansible issues on Actions
       - name: Change hostname to localhost
@@ -88,6 +84,39 @@ jobs:
       - name: LILS Generator
         run: python tools/lorum_facility_generator.py
 
+      - name: Set X509 certificate
+        run: |
+          echo "$X509_USER_CERT" > hostcert.pem;
+          echo "$X509_USER_KEY" > hostkey.pem;
+          chmod 600 hostkey.pem;
+        env:
+          X509_USER_CERT: ${{ secrets.FTS3_HOSTCERT }}
+          X509_USER_KEY: ${{ secrets.FTS3_HOSTKEY }}
+
+      - name: Login to Harbor registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.HARBOR_URL }}
+          username: ${{ secrets.HARBOR_USERNAME }}
+          password: ${{ secrets.HARBOR_PASSWORD }}
+
+      - name: Start Datastore API
+        run: |
+          docker run -d \
+            -p 8000:8000 \
+            -v ./.github/config.yaml:/app/config.yaml \
+            -v ./.github/logging.ini:/app/logging.ini \
+            -v hostcert.pem:/app/hostcert.pem \
+            -v hostkey.pem:/app/hostkey.pem \
+            -e S3__ACCESS_KEY \
+            -e S3__SECRET_KEY \
+            --network="host" \
+            "$HARBOR_URL/datastore-api:v0.1.0"
+        env:
+          HARBOR_URL: ${{ secrets.HARBOR_URL }}
+          S3__ACCESS_KEY: ${{ secrets.ECHO_S3_ACCESS_KEY }}
+          S3__SECRET_KEY: ${{ secrets.ECHO_S3_SECRET_KEY }}
+
       # Payara must be sourced otherwise the Maven build command fails
       - name: Run Build
         run: |
@@ -104,14 +133,14 @@ jobs:
         if: ${{ failure() }}
         with:
           name: DataGatewayDownload API logs
-          path: /home/runner/logs/datagateway-download-api.log
+          path: /home/runner/logs/fdp-download-api.log
 
-      - name: Upload IDS log
+      - name: Upload Datastore API logs
         uses: actions/upload-artifact@v4
         if: ${{ failure() }}
         with:
-          name: IDS logs
-          path: /home/runner/logs/ids.log
+          name: Logs
+          path: /home/runner/logs/datastore-api.log
 
       - name: Upload ICAT log
         uses: actions/upload-artifact@v4
