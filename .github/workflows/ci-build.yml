@@ -103,11 +103,13 @@ jobs:
       - name: Start Datastore API
         run: |
           docker run -p 8000:8000 \
-            -v .github/config.yaml:/app/config.yaml \
+            -v ./.github/config.yaml:/app/config.yaml \
+            -v ./.github/logging.ini:/app/logging.ini \
             -v hostcert.pem:/app/hostcert.pem \
             -v hostkey.pem:/app/hostkey.pem \
             -e S3__ACCESS_KEY \
             -e S3__SECRET_KEY \
+            --network="host" \
             "$HARBOR_URL/datastore-api:v0.1.0"
         env:
           HARBOR_URL: ${{ secrets.HARBOR_URL }}
