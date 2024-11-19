@@ -18,12 +18,7 @@ import jakarta.annotation.Resource;
 
 import org.icatproject.topcat.domain.Download;
 import org.icatproject.topcat.domain.DownloadStatus;
-import org.icatproject.topcat.Properties;
-import org.icatproject.topcat.Utils;
 import org.icatproject.topcat.repository.*;
-import org.icatproject.topcat.web.rest.UserResource;
-import org.icatproject.topcat.IdsClient;
-import org.icatproject.topcat.FacilityMap;
 
 import org.icatproject.topcat.exceptions.*;
 
@@ -91,10 +86,10 @@ public class StatusCheck {
    * 
    * @param pollDelay minimum time to wait before initial preparation/check
    * @param pollIntervalWait minimum time between checks
-   * @param injectedStorageClient optional (possibly mock) StorageClient
+   * @param injectedDatastoreClient optional (possibly mock) DatastoreClient
    * @throws Exception
    */
-  public void updateStatuses(int pollDelay, int pollIntervalWait, StorageClient injectedStorageClient) throws Exception {
+  public void updateStatuses(int pollDelay, int pollIntervalWait, DatastoreClient injectedDatastoreClient) throws Exception {
 	  
 	  // This method is intended for testing, but we are forced to make it public rather than protected.
 
@@ -109,31 +104,31 @@ public class StatusCheck {
         	// If prepareDownload was called previously but caught an exception (other than TopcatException),
         	// we should not call it again immediately, but should impose a delay. See issue #462.          
           if(lastCheck == null){
-        	  prepareDownload(download, injectedStorageClient);
+        	  prepareDownload(download, injectedDatastoreClient);
             } else {
               long lastCheckSecondsAgo = (now.getTime() - lastCheck.getTime()) / 1000;
               if(lastCheckSecondsAgo >= pollIntervalWait){
-            	  prepareDownload(download, injectedStorageClient);
+            	  prepareDownload(download, injectedDatastoreClient);
               }
             }
         } else if(createdSecondsAgo >= pollDelay){
           if(lastCheck == null){
-            performCheck(download, injectedStorageClient);
+            performCheck(download, injectedDatastoreClient);
           } else {
             long lastCheckSecondsAgo = (now.getTime() - lastCheck.getTime()) / 1000;
             if(lastCheckSecondsAgo >= pollIntervalWait){
-              performCheck(download, injectedStorageClient);
+              performCheck(download, injectedDatastoreClient);
             }
           }
         }
       }	  
   }
 
-  private void performCheck(Download download, StorageClient injectedStorageClient) {
+  private void performCheck(Download download, DatastoreClient injectedDatastoreClient) {
     try {
-      StorageClient storageClient = injectedStorageClient;
-      if( storageClient == null ) {
-    	  storageClient = UserResource.getDownloadClient(download.getFacilityName(), download.getTransport());
+      DatastoreClient datastoreClient = injectedDatastoreClient;
+      if( datastoreClient == null ) {
+    	  datastoreClient = new DatastoreClient(getDownloadUrl(download.getFacilityName(),download.getTransport()));
       }
       if(!download.getIsEmailSent() && download.getStatus() == DownloadStatus.COMPLETE){
     	  logger.info("Download COMPLETE for " + download.getFileName() + "; checking whether to send email...");
@@ -142,7 +137,7 @@ public class StatusCheck {
         em.flush();
         lastChecks.remove(download.getId());
         sendDownloadReadyEmail(download);
-      } else if(download.getTransport().matches("https|http") && storageClient.isPrepared(download.getPreparedId())){
+      } else if(datastoreClient.isDirect(download) && datastoreClient.isPrepared(download)){
     	  logger.info("Download (http[s]) for " + download.getFileName() + " is Prepared, so setting COMPLETE and checking email...");
         download.setStatus(DownloadStatus.COMPLETE);
         download.setCompletedAt(new Date());
@@ -219,27 +214,28 @@ public class StatusCheck {
     }
   }
 
-  private void prepareDownload(Download download, StorageClient injectedStorageClient) throws Exception {
+  private void prepareDownload(Download download, DatastoreClient injectedDatastoreClient) throws Exception {
 
     try {
-      StorageClient storageClient = injectedStorageClient;
-      if( storageClient == null ) {
-    	  storageClient = UserResource.getDownloadClient(download.getFacilityName(), download.getTransport());
+      DatastoreClient datastoreClient = injectedDatastoreClient;
+      if( datastoreClient == null ) {
+    	  datastoreClient = new DatastoreClient(getDownloadUrl(download.getFacilityName(),download.getTransport()));
       }
       logger.info("Requesting prepareData for Download " + download.getFileName());
-      String preparedId = storageClient.prepareData(download.getSessionId(), download.getInvestigationIds(), download.getDatasetIds(), download.getDatafileIds());
+      String preparedId = datastoreClient.prepareData(download);
       download.setPreparedId(preparedId);
 
-      try {
-        // TODO if we don't accept size in the request, make this hit ICAT directly rather than via the IDS so I don't have to duplicate?
-        Long size = storageClient.getSize(download.getSessionId(), download.getInvestigationIds(), download.getDatasetIds(), download.getDatafileIds());
-        download.setSize(size);
-      } catch(Exception e) {
-    	logger.error("prepareDownload: setting size to -1 as getSize threw exception: " + e.getMessage());
-        download.setSize(-1);
+      if (download.getSize() != -1) {
+        try {
+          Long size = datastoreClient.getSize(download);
+          download.setSize(size);
+        } catch(Exception e) {
+        logger.error("prepareDownload: setting size to -1 as getSize threw exception: " + e.getMessage());
+          download.setSize(-1);
+        }
       }
 
-      if (download.getIsTwoLevel() || !download.getTransport().matches("https|http")) {
+      if (download.getIsTwoLevel() || !datastoreClient.isDirect(download)) {
     	  logger.info("Setting Download status RESTORING for " + download.getFileName());
         download.setStatus(DownloadStatus.RESTORING);
       } else {

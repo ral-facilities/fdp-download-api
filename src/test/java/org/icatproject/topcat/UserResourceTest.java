@@ -167,11 +167,10 @@ public class UserResourceTest {
 		assertEquals(200, response.getStatus());
 
 		// Now submit it
-		String transport = "http";
+		String transport = "echo";
 		String email = "";
 		String fileName = "dataset-1.zip";
-		String zipType = "ZIP";
-		response = userResource.submitCart(facilityName, sessionId, transport, email, fileName, zipType);
+		response = userResource.submitCart(facilityName, sessionId, transport, email, fileName, -1);
 		assertEquals(200, response.getStatus());
 		json = Utils.parseJsonObject(response.getEntity().toString());
 

@@ -36,12 +36,10 @@ import org.icatproject.topcat.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.icatproject.topcat.IdsClient;
+import org.icatproject.topcat.DatastoreClient;
 import org.icatproject.topcat.FacilityMap;
-import org.icatproject.topcat.FtsClient;
 import org.icatproject.topcat.IcatClient;
 import org.icatproject.topcat.Properties;
-import org.icatproject.topcat.StorageClient;
 
 @Stateless
 @LocalBean
@@ -636,6 +634,8 @@ public class UserResource {
 	 * @param zipType
 	 *            zip compressing options can be 'ZIP' (default) or
 	 *            'ZIP_AND_COMPRESS'
+	 * @param size
+	 * 			  size of the cart in bytes, defaults to -1 in which case it will be fetched later
 	 *
 	 * @return returns the (empty) cart object (with downloadId) in the form:
 	 *         {"facilityName":"test","userName":"simple/root","cartItems":[],
@@ -658,7 +658,7 @@ public class UserResource {
 			@FormParam("transport") String transport,
 			@FormParam("email") String email,
 			@FormParam("fileName") String fileName,
-			@FormParam("zipType") String zipType)
+			@DefaultValue("-1") @FormParam("size") long size)
 			throws TopcatException, MalformedURLException, ParseException {
 
 		logger.info("submitCart called");
@@ -681,12 +681,12 @@ public class UserResource {
 		Cart cart = cartRepository.getCart(cartUserName, facilityName);
 		String fullName = icatClient.getFullName();
 		Long downloadId = null;
-		StorageClient storageClient = getDownloadClient(facilityName, transport);
+		String transportUrl = getDownloadUrl(facilityName, transport);
+		DatastoreClient datastoreClient = new DatastoreClient(transportUrl);
 
 		if(email != null && email.equals("")){
 			email = null;
 		}
-		
 
 		if (cart != null) {
 			em.refresh(cart);
@@ -700,7 +700,7 @@ public class UserResource {
 			download.setTransport(transport);
 			download.setEmail(email);
 			download.setIsEmailSent(false);
-			download.setSize(0);  // TODO accept size from the request?
+			download.setSize(size);
 
 			List<DownloadItem> downloadItems = new ArrayList<DownloadItem>();
 
@@ -714,13 +714,13 @@ public class UserResource {
 
 			download.setDownloadItems(downloadItems);
 
-			Boolean isTwoLevel = storageClient.isTwoLevel();
+			Boolean isTwoLevel = datastoreClient.isTwoLevel();
 			download.setIsTwoLevel(isTwoLevel);
 
 			if(isTwoLevel){
 				download.setStatus(DownloadStatus.PREPARING);
 			} else {
-				String preparedId = storageClient.prepareData(download.getSessionId(), download.getInvestigationIds(), download.getDatasetIds(), download.getDatafileIds());
+				String preparedId = datastoreClient.prepareData(download);
       			download.setPreparedId(preparedId);
 				download.setStatus(DownloadStatus.COMPLETE);
 			}
@@ -775,9 +775,10 @@ public class UserResource {
 		@QueryParam("entityType") String entityType,
 		@QueryParam("entityId") Long entityId) throws TopcatException {
 
-		StorageClient storageClient = getStorageClient(facilityName);
+		String transferUrl = getTransferUrl( facilityName );
+		DatastoreClient datastoreClient = new DatastoreClient(transferUrl);
 
-		Long size = storageClient.getSize(cacheRepository, sessionId, entityType, entityId);
+		Long size = datastoreClient.getSize(cacheRepository, sessionId, entityType, entityId);
 
 		return Response.ok().entity(size.toString()).build();
 	}
@@ -839,31 +840,7 @@ public class UserResource {
 	private Response emptyCart(String facilityName, String userName) {
 		return emptyCart(facilityName, userName, null);
 	}
-
-	public static StorageClient getDownloadClient(String facilityName, String downloadType) throws BadRequestException {
-		return getStorageClient(facilityName, getDownloadUrl(facilityName, downloadType));
-	}
-
-	private static StorageClient getStorageClient(String facilityName) throws BadRequestException {
-		return getStorageClient(facilityName, getStorageUrl(facilityName));
-	}
-
-	private static StorageClient getStorageClient(String facilityName, String storageUrl) throws BadRequestException {
-		try {
-			StorageType storageType = FacilityMap.getInstance().getStorageType(facilityName);
-			switch (storageType) {
-				case ids:
-					return new IdsClient(storageUrl);
-				case fts:
-					return new FtsClient(storageUrl);
-				default:
-					throw new BadRequestException("Unsupported storage service " + storageType.toString());
-			}
-		} catch (InternalException ie){
-			throw new BadRequestException( ie.getMessage() );
-		}
-	}
-
+	
 	private String getIcatUrl( String facilityName ) throws BadRequestException{
 		testFacilityName( facilityName, "getIcatUrl" );
 		try {
@@ -873,10 +850,10 @@ public class UserResource {
 		}
 	}
 
-	private static String getStorageUrl( String facilityName ) throws BadRequestException{
-		testFacilityName( facilityName, "getStorageUrl" );
+	private static String getTransferUrl( String facilityName ) throws BadRequestException{
+		testFacilityName( facilityName, "getTransferUrl" );
 		try {
-			return FacilityMap.getInstance().getStorageUrl(facilityName);
+			return FacilityMap.getInstance().getTransferUrl(facilityName);
 		} catch (InternalException ie){
 			throw new BadRequestException( ie.getMessage() );
 		}
@@ -893,7 +870,7 @@ public class UserResource {
 	
 	private static void testFacilityName( String facilityName, String methodName ) throws BadRequestException{
 		if( facilityName == null ){
-			// Most likely an old-style API request using icat/idsUrl
+			// Most likely an old-style API request using icat/transferUrl
 			// rather than facilityName; so log and raise a specific error here.
 			String message = "UserResource." + methodName + ": facilityName is null. Perhaps request is using old API?";
 			logger.error( message );

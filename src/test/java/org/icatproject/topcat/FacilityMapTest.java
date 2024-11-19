@@ -39,24 +39,24 @@ public class FacilityMapTest {
 		
 		String facilityList = "LILS";
 		String lilsIcatUrl = "DummyIcatUrl";
-		String lilsIdsUrl = "DummyIdsUrl";
+		String lilsTransferUrl = "DummyTransferUrl";
 		
 		MockProperties props = new MockProperties();
 		
 		props.setMockProperty("facility.list", facilityList);
 		props.setMockProperty("facility.LILS.icatUrl", lilsIcatUrl);
-		props.setMockProperty("facility.LILS.idsUrl", lilsIdsUrl);
+		props.setMockProperty("facility.LILS.transferUrl", lilsTransferUrl);
 		
 		// The first test is that the FacilityMap should survive construction!
 		
 		FacilityMap facilityMap = new FacilityMap(props);
 		
 		assertEquals( lilsIcatUrl, facilityMap.getIcatUrl("LILS") );
-		assertEquals( lilsIdsUrl, facilityMap.getIdsUrl("LILS") );
+		assertEquals( lilsTransferUrl, facilityMap.getTransferUrl("LILS") );
 		
 		// We haven't specified any download type URLs, so the IDS url should be returned
 		
-		assertEquals( lilsIdsUrl, facilityMap.getDownloadUrl("LILS", "http"));
+		assertEquals( lilsTransferUrl, facilityMap.getDownloadUrl("LILS", "http"));
 		
 		// If we do add a download type property, it should be retrieved properly
 		
@@ -76,10 +76,10 @@ public class FacilityMapTest {
 		String facilityList1 = "Fac1, Fac2";
 		String facilityList2 = "Fac1 Fac2";
 		String fac1IcatUrl = "Fac1IcatUrl";
-		String fac1IdsUrl = "Fac1IdsUrl";
+		String fac1TransferUrl = "Fac1TransferUrl";
 		String fac1HttpUrl = "Fac1HttpUrl";
 		String fac2IcatUrl = "Fac2IcatUrl";
-		String fac2IdsUrl = "Fac2IdsUrl";
+		String fac2TransferUrl = "Fac2TransferUrl";
 		String fac2HttpUrl = "Fac2HttpUrl";
 
 		MockProperties props;
@@ -91,24 +91,24 @@ public class FacilityMapTest {
 			props.setMockProperty("facility.list", facilityList1);
 			
 			props.setMockProperty("facility.Fac1.icatUrl", fac1IcatUrl);
-			props.setMockProperty("facility.Fac1.idsUrl", fac1IdsUrl);
+			props.setMockProperty("facility.Fac1.transferUrl", fac1TransferUrl);
 			props.setMockProperty("facility.Fac1.downloadType.http", fac1HttpUrl);
 
 			props.setMockProperty("facility.Fac2.icatUrl", fac2IcatUrl);
-			props.setMockProperty("facility.Fac2.idsUrl", fac2IdsUrl);
+			props.setMockProperty("facility.Fac2.transferUrl", fac2TransferUrl);
 			props.setMockProperty("facility.Fac2.downloadType.http", fac2HttpUrl);
 			
 			FacilityMap facilityMap = new FacilityMap(props);
 
 			assertEquals( fac1IcatUrl, facilityMap.getIcatUrl("Fac1") );
-			assertEquals( fac1IdsUrl, facilityMap.getIdsUrl("Fac1") );
+			assertEquals( fac1TransferUrl, facilityMap.getTransferUrl("Fac1") );
 			assertEquals( fac1HttpUrl, facilityMap.getDownloadUrl("Fac1", "http"));
-			assertEquals( fac1IdsUrl, facilityMap.getDownloadUrl("Fac1", "other"));
+			assertEquals( fac1TransferUrl, facilityMap.getDownloadUrl("Fac1", "other"));
 			
 			assertEquals( fac2IcatUrl, facilityMap.getIcatUrl("Fac2") );
-			assertEquals( fac2IdsUrl, facilityMap.getIdsUrl("Fac2") );
+			assertEquals( fac2TransferUrl, facilityMap.getTransferUrl("Fac2") );
 			assertEquals( fac2HttpUrl, facilityMap.getDownloadUrl("Fac2", "http"));
-			assertEquals( fac2IdsUrl, facilityMap.getDownloadUrl("Fac2", "other"));
+			assertEquals( fac2TransferUrl, facilityMap.getDownloadUrl("Fac2", "other"));
 			
 		}
 	}

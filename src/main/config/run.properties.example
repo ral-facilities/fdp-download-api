@@ -7,9 +7,9 @@
 facility.list = LILS YFH
 
 facility.LILS.icatUrl = http://localhost:8080
-facility.LILS.idsUrl = http://localhost:8080
+facility.LILS.transferUrl = http://localhost:8000
 facility.YFH.icatUrl = https://your.facility.icatUrl.here
-facility.YFH.idsUrl = https://your.facility.idsUrl.here
+facility.YFH.transferUrl = https://your.facility.transferUrl.here
 
 # Download transport URLs
 # topcat.json can specify one or more download transport types for each facility, egs "https", "globus";
@@ -19,10 +19,10 @@ facility.YFH.idsUrl = https://your.facility.idsUrl.here
 # but the URL to specify here should be the IDS url that will be used in the Java clients;
 # so it may be that the Javascript transport type https should be mapped here to an
 # internal http URL.
-# If the property is not defined, Topcat will use the facility's idsUrl by default.
+# If the property is not defined, Topcat will use the facility's transferUrl by default.
 
 facility.LILS.downloadType.http = http://localhost:8080
-facility.YFH.downloadType.https = https://your.facility.downloadIdsUrl.here
+facility.YFH.downloadType.https = https://your.facility.downloadTransferUrl.here
 facility.YFH.downloadType.globus = https://your.facility.globusUrl.here
 
 # enable send email
@@ -76,11 +76,11 @@ maxCacheSize=100000
 # Whether to cache zero-sized Investigations (default is false)
 # neverCacheZeroSizedInvestigations=false
 
-# Timeout for IDS connections.
+# Timeout for transfer client connections.
 # Optional (default is no timeout). Can be in seconds (suffix 's'), minutes ('m') or milliseconds (no suffix)
-# ids.timeout=180000
-# ids.timeout=180s
-# ids.timeout=3m
+# transfer.timeout=180000
+# transfer.timeout=180s
+# transfer.timeout=3m
 
 # Username that corresponds with the anonymous user - this is used to make anonymous carts unique
 anonUserName=anon/anon
